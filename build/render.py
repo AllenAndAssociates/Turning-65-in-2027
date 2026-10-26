@@ -19,16 +19,16 @@ SRC = os.path.join(HERE, "..", "Untitled video.mp4")
 OUT = os.path.join(HERE, "out")
 os.makedirs(OUT, exist_ok=True)
 
-NAVY = (11, 37, 69)
+NAVY = (0, 87, 154)       # brand Deep Blue
 NAVY2 = (19, 49, 92)
-GOLD = (224, 165, 38)
-GOLD_LT = (247, 205, 96)
+GOLD = (76, 175, 46)      # brand Green
+GOLD_LT = (141, 194, 31)  # brand Lime Green
 WHITE = (255, 255, 255)
 RED = (214, 40, 57)
 RED_DK = (176, 18, 34)
-GREEN = (30, 158, 90)
-BLUE = (29, 95, 191)
-INK = (40, 52, 70)
+GREEN = (62, 165, 53)
+BLUE = (0, 114, 188)      # brand Blue
+INK = (48, 48, 48)        # brand Charcoal
 BG = (246, 244, 239)
 
 FD = "/usr/share/fonts/opentype/inter/"
@@ -143,17 +143,14 @@ def icon_disc(ch, d):
     return im
 
 
-def logo(d):
-    """Typographic placeholder mark for the Allen & Associates logo."""
-    im = Image.new("RGBA", (d, d), (0, 0, 0, 0))
-    dr = ImageDraw.Draw(im)
-    dr.ellipse((0, 0, d - 1, d - 1), fill=GOLD)
-    k = d // 16
-    dr.ellipse((k, k, d - 1 - k, d - 1 - k), fill=NAVY)
-    dr.ellipse((k * 2, k * 2, d - 1 - k * 2, d - 1 - k * 2), outline=GOLD, width=max(2, d // 60))
-    t = text_sprite("A&A", F(BLACK_D, int(d * 0.33)), GOLD)
-    place(im, t, d / 2, d / 2)
-    return im
+LOGO_PATH = os.path.join(HERE, "..", ".claude", "skills", "allen-associates-brand", "assets", "logo_transparent.png")
+
+
+@lru_cache(None)
+def logo(width):
+    """Official Allen & Associates logo (from the brand skill); place on white only."""
+    im = Image.open(LOGO_PATH).convert("RGBA")
+    return im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
 
 
 def calendar_icon(d):
@@ -211,7 +208,7 @@ def build_banner():
     d.rectangle((0, BANNER_H - 12, W, BANNER_H), fill=GOLD)
     f = F(BLACK_D, 82)
     a = text_sprite("TURNING 65 IN ", f, WHITE)
-    b = text_sprite("2027?", f, GOLD)
+    b = text_sprite("2027?", f, GOLD_LT)
     x = (W - a.width - b.width + 8) / 2
     place(im, a, x, 140, anchor="l")
     place(im, b, x + a.width - 8, 140, anchor="l")
@@ -230,7 +227,7 @@ def tab_sprite(i, state):
     w, h = TAB_W, TAB_H
     fill, txt, num_bg, num_fg, outline = {
         "idle": (WHITE, INK, NAVY, WHITE, (200, 205, 214)),
-        "active": (NAVY, WHITE, GOLD, NAVY, GOLD),
+        "active": (NAVY, WHITE, GOLD, WHITE, GOLD),
         "done": (GREEN, WHITE, WHITE, GREEN, (20, 120, 66)),
     }[state]
     im, m = shadowed(w, h, h // 2, fill, blur=8, off=5, alpha=50, outline=outline, ow=3)
@@ -257,7 +254,7 @@ def card_base(num, title):
     d.rounded_rectangle((m, m, m + CARD_W, m + 14), 7, fill=GOLD)
     d.rectangle((m, m + 7, m + CARD_W, m + 14), fill=GOLD)
     d.ellipse((m + 36, m + 46, m + 118, m + 128), fill=NAVY)
-    place(im, text_sprite(f"#{num}", F(BLACK_D, 36), GOLD), m + 77, m + 87)
+    place(im, text_sprite(f"#{num}", F(BLACK_D, 36), WHITE), m + 77, m + 87)
     place(im, text_sprite(title, F(XB_D, 48), NAVY), m + 140, m + 87, anchor="l")
     d.line((m + 36, m + 150, m + CARD_W - 36, m + 150), fill=(228, 224, 214), width=3)
     return im, m
@@ -298,7 +295,7 @@ def hook(layer, t):
     if pp:
         s, a = pp
         sh = text_sprite("2027", F(BLACK_D, 330), NAVY)
-        g = text_sprite("2027", F(BLACK_D, 330), GOLD, stroke=4, stroke_fill=(190, 130, 20))
+        g = text_sprite("2027", F(BLACK_D, 330), GOLD, stroke=4, stroke_fill=(40, 125, 35))
         place(layer, sh, 548, 612, s * ex_s, a * ex_a * .9)
         place(layer, g, 540, 600, s * ex_s, a * ex_a)
     pp = pop(t, T_DO_NOT, 0.4, 0.5)
@@ -343,16 +340,15 @@ def authority(layer, t):
     d = ImageDraw.Draw(card)
     d.rounded_rectangle((m, m, m + 22, m + h), 11, fill=GOLD)
     d.rectangle((m + 11, m, m + 22, m + h), fill=GOLD)
-    place(card, logo(250), m + 190, m + h / 2)
-    place(card, text_sprite("Arric Allen", F(BLACK_D, 82), NAVY), m + 345, m + 120, anchor="l")
-    place(card, text_sprite("Allen & Associates", F(SEMI, 46), INK), m + 348, m + 205, anchor="l")
-    d.line((m + 348, m + 262, m + 820, m + 262), fill=(228, 224, 214), width=3)
+    place(card, logo(600), m + 22 + (w - 22) / 2, m + 125)
+    d.line((m + 70, m + 248, m + w - 50, m + 248), fill=(228, 224, 214), width=3)
+    place(card, text_sprite("Arric Allen", F(BLACK_D, 82), NAVY), m + 80, m + 330, anchor="l")
     pill = Image.new("RGBA", (300, 78), (0, 0, 0, 0))
     ImageDraw.Draw(pill).rounded_rectangle((0, 0, 299, 77), 39, fill=GOLD)
-    place(pill, text_sprite("SINCE 1994", F(BLACK_D, 38), NAVY), 150, 39)
+    place(pill, text_sprite("SINCE 1994", F(BLACK_D, 38), WHITE), 150, 39)
     pp = pop(t, S2 + 0.45, 0.4)
     if pp:
-        place(card, pill, m + 348 + 150, m + 330, pp[0], pp[1])
+        place(card, pill, m + w - 60 - 150, m + 330, pp[0], pp[1])
     y = 700 - (1 - p) * 760
     place(layer, card, 540, y, 1 - 0.2 * in_cubic(ex), 1 - ex)
 
@@ -496,11 +492,11 @@ def card3(layer, t):
     if pb:
         b = box(GOLD, NAVY, None, "PATH B", [
             ("Medicare", F(BLACK_D, 54), NAVY), ("Advantage", F(BLACK_D, 54), NAVY),
-            ("(All-in-One)", F(XB_D, 42), (70, 50, 10))])
+            ("(All-in-One)", F(XB_D, 42), (18, 70, 20))])
         place(card, b, ox + CARD_W - 36 - bw / 2, cy, pb[0], pb[1])
         vs = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
         ImageDraw.Draw(vs).ellipse((0, 0, 95, 95), fill=NAVY, outline=WHITE, width=6)
-        place(vs, text_sprite("VS", F(BLACK_D, 34), GOLD), 48, 48)
+        place(vs, text_sprite("VS", F(BLACK_D, 34), WHITE), 48, 48)
         place(card, vs, ox + CARD_W / 2, cy, pb[0], pb[1])
     if not pa:  # placeholder slots before the paths are named
         g = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
@@ -519,16 +515,16 @@ def contact(layer, t):
     card, m = shadowed(w, h, 36, NAVY, blur=22, off=14, alpha=90, outline=GOLD, ow=6)
     d = ImageDraw.Draw(card)
     cx = m + w / 2
-    place(card, logo(168), cx, m + 110)
-    place(card, text_sprite("ALLEN & ASSOCIATES", F(BLACK_D, 60), WHITE), cx, m + 238)
-    place(card, text_sprite("S I N C E   1 9 9 4", F(BOLD, 32), GOLD), cx, m + 296)
-    d.line((cx - 160, m + 336, cx + 160, m + 336), fill=GOLD, width=3)
+    d.rounded_rectangle((m + 40, m + 34, m + w - 40, m + 262), 26, fill=WHITE)
+    place(card, logo(660), cx, m + 148)
+    place(card, text_sprite("S I N C E   1 9 9 4", F(BOLD, 32), GOLD_LT), cx, m + 302)
+    d.line((cx - 160, m + 338, cx + 160, m + 338), fill=GOLD_LT, width=3)
     # phone: digits light up as they're spoken
     groups = ["800", "-", "3", "2", "4", "-", "9", "9", "8", "6"]
     lit_at = [T_DIGITS[0], T_DIGITS[1], T_DIGITS[1], T_DIGITS[2], T_DIGITS[3], T_DIGITS[4],
               T_DIGITS[4], T_DIGITS[5], T_DIGITS[6], T_DIGITS[7]]
     fph = F(BLACK_D, 86)
-    spr = [text_sprite(g, fph, GOLD if t >= lt else WHITE, pad=0) for g, lt in zip(groups, lit_at)]
+    spr = [text_sprite(g, fph, GOLD_LT if t >= lt else WHITE, pad=0) for g, lt in zip(groups, lit_at)]
     adv = [fph.getlength(g) for g in groups]
     ico = icon_disc("📞", 92)
     total = ico.width + 26 + sum(adv)
@@ -541,7 +537,7 @@ def contact(layer, t):
     # website + click
     clicked = t >= T_URL
     fw = F(XB_D, 50)
-    url = text_sprite("allenandassociates.agency", fw, GOLD if clicked else WHITE)
+    url = text_sprite("allenandassociates.agency", fw, GOLD_LT if clicked else WHITE)
     gl = icon_disc("🌐", 70)
     total = gl.width + 22 + url.width
     x = cx - total / 2
@@ -551,7 +547,7 @@ def contact(layer, t):
     if clicked:
         up = out_cubic(prog(t, T_URL, 0.3))
         ux0 = x + gl.width + 22
-        d.rectangle((ux0, uy + 34, ux0 + url.width * up, uy + 39), fill=GOLD)
+        d.rectangle((ux0, uy + 34, ux0 + url.width * up, uy + 39), fill=GOLD_LT)
     # cursor glides in and clicks
     if t >= T_URL - 0.8:
         k = out_cubic(prog(t, T_URL - 0.8, 0.7))
