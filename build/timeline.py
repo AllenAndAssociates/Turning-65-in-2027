@@ -1,52 +1,45 @@
-"""Shared timing for the Turning 65 in 2027 edit.
+"""Shared timing for the Turning 65 in 2027 edit (HeyGen take).
 
-Source footage has a flubbed duplicate "I'm Arric Allen." at 8.10-11.18s.
-It is cut out, so every source time after the cut shifts back by CUT_LEN.
-All times below are on the EDITED timeline (seconds).
+Talking head: heygen/arric_heygen.mp4 (1080x1920, 25 fps, green #1CA331).
+Word times come from a word-level transcript of that file; the edit has no cuts,
+so source time == edited time.
 """
 
-CUT_IN = 8.10   # source time where the flub starts (cut here)
-CUT_OUT = 11.18  # source time where the clean take resumes
-CUT_LEN = CUT_OUT - CUT_IN
-SRC_END = 55.317
+SRC_FILE = "heygen/arric_heygen.mp4"
+KEY_COLOR = "0x1CA331"
+SRC_END = 48.45
 TAIL = 1.4      # hold last frame so the resolving chord can ring out
 FPS = 30
 W, H = 1080, 1920
 SPLIT = int(H * 0.55)  # top 55% graphics stage / bottom 45% speaker
 
+END = SRC_END + TAIL
 
-def e(src):
-    """Map a source timestamp (after the cut) to the edited timeline."""
-    return src - CUT_LEN if src >= CUT_OUT else src
-
-
-END = e(SRC_END) + TAIL
-
-# Scene starts (edited timeline)
+# Scene starts
 S1 = 0.0
-S2 = CUT_IN                # "I'm Arric Allen with Allen & Associates"
-S3 = e(14.14) - 0.25       # "Medicare's annual election period..."
-S4 = e(22.32) - 0.25       # "If your Medicare doesn't start until 2027"
-S5 = e(29.04) - 0.10       # "Instead, your real timeline..."
-S6 = e(36.02) - 0.25       # "Use that time to learn the two main paths"
-S7 = e(45.96) - 0.35       # "To start reviewing your 2027 options early..."
+S2 = 7.66                  # "I'm Arric Allen with Allen & Associates"
+S3 = 10.05                 # "Medicare's annual election period..."
+S4 = 18.10                 # "If your Medicare doesn't start until 2027"
+S5 = 23.76                 # "Instead, your real timeline..."
+S6 = 29.55                 # "Use that time to learn the two main paths"
+S7 = 37.20                 # "To start reviewing your 2027 options early..."
 
 # Word-synced beats
-T_2027_SAID = 2.60
-T_DO_NOT = 4.12
-T_STATIC_OFF = 7.06        # "confuse you"
-T_OCT15 = e(16.96)
-T_DEC7 = e(17.84)
-T_ONLY = e(19.34)
-T_STAMP = e(27.04)         # "December seventh deadline"
-T_GREEN = e(27.04) + 0.50
-T_SIX_NINE = e(31.58)
-T_TWO_PATHS = e(38.20)
-T_PATH_A = e(40.50)        # "original Medicare..."
-T_PATH_B = e(43.58)        # "Medicare Advantage"
-T_DIGITS = [e(t) for t in (49.48, 50.18, 50.42, 50.66, 50.96, 51.16, 51.34, 51.56)]
-T_URL = e(52.82)
-T_CHORD = e(54.88) + 0.05
+T_2027_SAID = 2.00
+T_DO_NOT = 3.44
+T_STATIC_OFF = 6.82        # "confuse you"
+T_OCT15 = 12.54
+T_DEC7 = 13.80
+T_ONLY = 15.34
+T_STAMP = 22.46            # "December seventh deadline"
+T_GREEN = T_STAMP + 0.50
+T_SIX_NINE = 26.82
+T_TWO_PATHS = 31.04
+T_PATH_A = 33.12           # "original Medicare..."
+T_PATH_B = 36.08           # "Medicare Advantage"
+T_DIGITS = [41.56, 42.66, 42.98, 43.28, 43.80, 44.08, 44.36, 44.64]  # 800, 3, 2, 4, 9, 9, 8, 6
+T_URL = 46.22
+T_CHORD = 48.38
 
 # Speaker zoom per scene (Bottom-Center placement)
 ZOOMS = [(S1, 1.00), (S2, 1.12), (S3, 1.00), (S4, 1.15), (S5, 1.00), (S6, 1.15), (S7, 1.05)]

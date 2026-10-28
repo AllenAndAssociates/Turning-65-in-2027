@@ -5,7 +5,7 @@ import numpy as np
 from timeline import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "..", "Untitled video.mp4")
+SRC = os.path.join(HERE, "..", SRC_FILE)
 OUT = os.path.join(HERE, "out")
 SR = 48000
 os.makedirs(OUT, exist_ok=True)
@@ -27,9 +27,8 @@ def db(x):
 n = int(END * SR)
 mix = np.zeros((n, 2), np.float32)
 
-# Voice: cut the flub, loudness-normalise to -15 LUFS
-voice = load(SRC, f"aselect='not(between(t,{CUT_IN},{CUT_OUT}))',asetpts=N/SR/TB,"
-                  "loudnorm=I=-15:TP=-1.5:LRA=11")
+# Voice: loudness-normalise to -15 LUFS
+voice = load(SRC, "loudnorm=I=-15:TP=-1.5:LRA=11")
 voice = voice[:n]
 mix[:len(voice)] += voice
 

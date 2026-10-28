@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from timeline import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "..", "Untitled video.mp4")
+SRC = os.path.join(HERE, "..", SRC_FILE)
 OUT = os.path.join(HERE, "out")
 os.makedirs(OUT, exist_ok=True)
 
@@ -607,9 +607,12 @@ def graphics(t):
 
 
 # ---------------------------------------------------------------- speaker
-BASE = 0.85
-ANCHOR_SRC = (540, 300)   # face centre in source
-ANCHOR_OUT = (540, 1262)
+BASE = 0.75
+ANCHOR_SRC = (540, 270)   # face centre in source
+ANCHOR_OUT = (540, 1235)
+
+
+KEYER = f"chromakey={KEY_COLOR}:0.13:0.06,despill=type=green:mix=0.6:expand=0.1,format=rgba"
 
 
 def zoom_at(t):
@@ -621,8 +624,7 @@ def zoom_at(t):
 
 
 def speaker_frames():
-    vf = (f"select='not(between(t\\,{CUT_IN}\\,{CUT_OUT - 0.001}))',setpts=N/FRAME_RATE/TB,"
-          "chromakey=0x03A03E:0.12:0.05,despill=type=green:mix=0.6:expand=0.1,format=rgba")
+    vf = f"fps={FPS},{KEYER}"
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-i", SRC, "-vf", vf, "-f", "rawvideo", "-"],
                          stdout=subprocess.PIPE)
     size = W * H * 4
@@ -661,10 +663,9 @@ def main():
     if "--stills" in sys.argv:
         times = [float(x) for x in sys.argv[sys.argv.index("--stills") + 1:]]
         for tt in times:
-            src_t = tt if tt < CUT_IN else tt + CUT_LEN
-            src_t = min(src_t, SRC_END - 0.05)
+            src_t = min(tt, SRC_END - 0.05)
             raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(src_t), "-i", SRC, "-frames:v", "1", "-vf",
-                                  "chromakey=0x03A03E:0.12:0.05,despill=type=green:mix=0.6:expand=0.1,format=rgba",
+                                  KEYER,
                                   "-f", "rawvideo", "-"], capture_output=True).stdout
             fr = Image.frombuffer("RGBA", (W, H), raw, "raw", "RGBA", 0, 1)
             frame(bg, fr, tt).convert("RGB").save(os.path.join(OUT, f"still_{tt:05.2f}.png"))
